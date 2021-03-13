@@ -24,6 +24,12 @@ public class ExampleStatemachine implements IExampleStatemachine {
 			black = true;
 		}
 		
+		private boolean newEvent;
+		
+		public void raiseNew() {
+			newEvent = true;
+		}
+		
 		private long whiteTime;
 		
 		public long getWhiteTime() {
@@ -44,10 +50,21 @@ public class ExampleStatemachine implements IExampleStatemachine {
 			this.blackTime = value;
 		}
 		
+		private long newVar;
+		
+		public long getNewVar() {
+			return newVar;
+		}
+		
+		public void setNewVar(long value) {
+			this.newVar = value;
+		}
+		
 		protected void clearEvents() {
 			start = false;
 			white = false;
 			black = false;
+			newEvent = false;
 		}
 	}
 	
@@ -59,6 +76,7 @@ public class ExampleStatemachine implements IExampleStatemachine {
 		main_region_Init,
 		main_region_Black,
 		main_region_White,
+		main_region_test,
 		$NullState$
 	};
 	
@@ -87,6 +105,8 @@ public class ExampleStatemachine implements IExampleStatemachine {
 		sCInterface.setWhiteTime(60);
 		
 		sCInterface.setBlackTime(60);
+		
+		sCInterface.setNewVar(100);
 	}
 	
 	public void enter() {
@@ -116,6 +136,9 @@ public class ExampleStatemachine implements IExampleStatemachine {
 				break;
 			case main_region_White:
 				main_region_White_react(true);
+				break;
+			case main_region_test:
+				main_region_test_react(true);
 				break;
 			default:
 				// $NullState$
@@ -170,6 +193,8 @@ public class ExampleStatemachine implements IExampleStatemachine {
 			return stateVector[0] == State.main_region_Black;
 		case main_region_White:
 			return stateVector[0] == State.main_region_White;
+		case main_region_test:
+			return stateVector[0] == State.main_region_test;
 		default:
 			return false;
 		}
@@ -215,6 +240,10 @@ public class ExampleStatemachine implements IExampleStatemachine {
 		sCInterface.raiseBlack();
 	}
 	
+	public void raiseNew() {
+		sCInterface.raiseNew();
+	}
+	
 	public long getWhiteTime() {
 		return sCInterface.getWhiteTime();
 	}
@@ -229,6 +258,14 @@ public class ExampleStatemachine implements IExampleStatemachine {
 	
 	public void setBlackTime(long value) {
 		sCInterface.setBlackTime(value);
+	}
+	
+	public long getNewVar() {
+		return sCInterface.getNewVar();
+	}
+	
+	public void setNewVar(long value) {
+		sCInterface.setNewVar(value);
 	}
 	
 	/* Entry action for state 'Black'. */
@@ -271,6 +308,12 @@ public class ExampleStatemachine implements IExampleStatemachine {
 		stateVector[0] = State.main_region_White;
 	}
 	
+	/* 'default' enter sequence for state test */
+	private void enterSequence_main_region_test_default() {
+		nextStateIndex = 0;
+		stateVector[0] = State.main_region_test;
+	}
+	
 	/* 'default' enter sequence for region main region */
 	private void enterSequence_main_region_default() {
 		react_main_region__entry_Default();
@@ -298,6 +341,12 @@ public class ExampleStatemachine implements IExampleStatemachine {
 		exitAction_main_region_White();
 	}
 	
+	/* Default exit sequence for state test */
+	private void exitSequence_main_region_test() {
+		nextStateIndex = 0;
+		stateVector[0] = State.$NullState$;
+	}
+	
 	/* Default exit sequence for region main region */
 	private void exitSequence_main_region() {
 		switch (stateVector[0]) {
@@ -309,6 +358,9 @@ public class ExampleStatemachine implements IExampleStatemachine {
 			break;
 		case main_region_White:
 			exitSequence_main_region_White();
+			break;
+		case main_region_test:
+			exitSequence_main_region_test();
 			break;
 		default:
 			break;
@@ -355,7 +407,12 @@ public class ExampleStatemachine implements IExampleStatemachine {
 						
 						enterSequence_main_region_Black_default();
 					} else {
-						did_transition = false;
+						if (sCInterface.newEvent) {
+							exitSequence_main_region_Black();
+							enterSequence_main_region_test_default();
+						} else {
+							did_transition = false;
+						}
 					}
 				}
 			}
@@ -381,6 +438,17 @@ public class ExampleStatemachine implements IExampleStatemachine {
 						did_transition = false;
 					}
 				}
+			}
+		}
+		return did_transition;
+	}
+	
+	private boolean main_region_test_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (react()==false) {
+				did_transition = false;
 			}
 		}
 		return did_transition;

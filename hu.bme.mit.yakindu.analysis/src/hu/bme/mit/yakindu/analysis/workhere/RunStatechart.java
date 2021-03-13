@@ -44,17 +44,14 @@ public class RunStatechart {
 		System.out.println("W = " + s.getSCInterface().getWhiteTime());
 		System.out.println("B = " + s.getSCInterface().getBlackTime());
 	}
+	
 	public static String getConsole() throws IOException {
 		char c='\n';
 		String s="";
 		while (true){
 			c = (char)System.in.read();
-			if ( c=='\n') {
-				break ;
-			}
-			else {
-				s+=c;
-			}
+			if ( c=='\n') {break ;}
+			else {s+=c;}
 		}
 		return s;
 	}
